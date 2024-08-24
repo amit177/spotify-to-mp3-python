@@ -37,16 +37,21 @@ def write_tracks(text_file: str, tracks: dict):
 
 
 def write_playlist(username: str, playlist_id: str):
-    results = spotify.user_playlist(username, playlist_id, fields='tracks,next,name')
-    playlist_name = results['name']
+    playlist_name = spotify.playlist(playlist_id, fields='name')['name']
     text_file = u'{0}.txt'.format(playlist_name, ok='-_()[]{}')
-    print(u'Writing {0} tracks to {1}.'.format(results['tracks']['total'], text_file))
-    tracks = results['tracks']['items']
+
+    results = spotify.playlist_tracks(playlist_id)
+    tracks = results["items"]
+    while results["next"]:
+        results = spotify.next(results)
+        tracks.extend(results["items"])
+
+    print(u'Writing {0} tracks to {1}.'.format(len(tracks), text_file))
     write_tracks(text_file, tracks)
 
-    imgURLs = [];
+    imgURLs = []
     for item in tracks['items']:
-        imgURLs.append(item['track']['album']['images'][0]['url']);
+        imgURLs.append(item['track']['album']['images'][0]['url'])
     return playlist_name, imgURLs
 
 def find_and_download_songs(reference_file: str):
