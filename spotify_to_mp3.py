@@ -36,7 +36,7 @@ def write_tracks(text_file: str, tracks: dict):
                         track['name'], track['artists'][0]['name']))
 
 
-def write_playlist(username: str, playlist_id: str):
+def write_playlist(playlist_id: str):
     playlist_name = spotify.playlist(playlist_id, fields='name')['name']
     text_file = u'{0}.txt'.format(playlist_name, ok='-_()[]{}')
 
@@ -233,18 +233,16 @@ if __name__ == "__main__":
         config.read("config.ini")
         client_id = config["Settings"]["client_id"]
         client_secret = config["Settings"]["client_secret"]
-        username = config["Settings"]["username"]
     else:
         client_id = input("Client ID: ")
         client_secret = input("Client secret: ")
-        username = input("Spotify username: ")
     playlist_uri = input("Playlist URI/Link: ")
     if playlist_uri.find("https://open.spotify.com/playlist/") != -1:
         playlist_uri = playlist_uri.replace("https://open.spotify.com/playlist/", "")
     multicore_support = enable_multicore(autoenable=False, maxcores=None, buffercores=1)
     auth_manager = oauth2.SpotifyClientCredentials(client_id=client_id, client_secret=client_secret)
     spotify = spotipy.Spotify(auth_manager=auth_manager)
-    playlist_name, albumArtUrls = write_playlist(username, playlist_uri)
+    playlist_name, albumArtUrls = write_playlist(playlist_uri)
     reference_file = "{}.txt".format(playlist_name)
     # Create the playlist folder
     if not os.path.exists(playlist_name):
