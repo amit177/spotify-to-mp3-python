@@ -15,31 +15,25 @@ from mutagen.id3 import ID3, APIC, error
 def write_tracks(text_file: str, tracks: dict):
     # This includins the name, artist, and spotify URL. Each is delimited by a comma.
     with open(text_file, 'w+', encoding='utf-8') as file_out:
-        while True:
-            for item in tracks['items']:
-                if 'track' in item:
-                    track = item['track']
-                else:
-                    track = item
-                try:
-                    track_url = track['external_urls']['spotify']
-                    track_name = track['name']
-                    track_artist = track['artists'][0]['name']
-                    album_art_url = track['album']['images'][0]['url']
-                    csv_line = track_name + "," + track_artist + "," + track_url + "," + album_art_url + "\n"
-                    try:
-                        file_out.write(csv_line)
-                    except UnicodeEncodeError:  # Most likely caused by non-English song names
-                        print("Track named {} failed due to an encoding error. This is \
-                            most likely due to this song having a non-English name.".format(track_name))
-                except KeyError:
-                    print(u'Skipping track {0} by {1} (local only?)'.format(
-                            track['name'], track['artists'][0]['name']))
-            # 1 page = 50 results, check if there are more pages
-            if tracks['next']:
-                tracks = spotify.next(tracks)
+        for item in tracks:
+            if 'track' in item:
+                track = item['track']
             else:
-                break
+                track = item
+            try:
+                track_url = track['external_urls']['spotify']
+                track_name = track['name']
+                track_artist = track['artists'][0]['name']
+                album_art_url = track['album']['images'][0]['url']
+                csv_line = track_name + "," + track_artist + "," + track_url + "," + album_art_url + "\n"
+                try:
+                    file_out.write(csv_line)
+                except UnicodeEncodeError:  # Most likely caused by non-English song names
+                    print("Track named {} failed due to an encoding error. This is \
+                        most likely due to this song having a non-English name.".format(track_name))
+            except KeyError:
+                print(u'Skipping track {0} by {1} (local only?)'.format(
+                        track['name'], track['artists'][0]['name']))
 
 
 def write_playlist(username: str, playlist_id: str):
@@ -47,7 +41,7 @@ def write_playlist(username: str, playlist_id: str):
     playlist_name = results['name']
     text_file = u'{0}.txt'.format(playlist_name, ok='-_()[]{}')
     print(u'Writing {0} tracks to {1}.'.format(results['tracks']['total'], text_file))
-    tracks = results['tracks']
+    tracks = results['tracks']['items']
     write_tracks(text_file, tracks)
 
     imgURLs = [];
